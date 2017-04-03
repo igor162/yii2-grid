@@ -91,8 +91,8 @@ HTML;
      */
     public $panelTemplate = <<< HTML
 <div class="{prefix}{type}">
-    {panelBefore}
     {panelHeading}
+    {panelBefore}
     {panelBody}
     {panelFooter}
     {panelAfter}
@@ -124,7 +124,9 @@ HTML;
      */
     public $panelHeadingTemplate = <<< HTML
     <div class="pull-right">
-        {toolbar}
+        <div class="btn-toolbar kv-grid-toolbar" role="toolbar">
+            {toolbar}
+        </div>
     </div>
     <h1 class="box-title">
         {heading}
@@ -244,7 +246,7 @@ HTML;
         if ($before !== false) {
             static::initCss($beforeOptions, 'box-before');
             $content = strtr($this->panelBeforeTemplate, ['{before}' => $before]);
-            $panelAfter = Html::tag('div', $content, $beforeOptions);
+            $panelBefore = Html::tag('div', $content, $beforeOptions);
         }
         if ($heading !== false) {
             static::initCss($headingOptions, 'box-header');
