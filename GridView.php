@@ -271,7 +271,7 @@ HTML;
         $this->layout = strtr(
             $this->panelTemplate,
             [
-                '{panelBefore}' => $panelBefore,
+                '{panelBefore}' => ($panelBefore) ? $panelBefore : null,
                 '{panelHeading}' => $panelHeading,
                 '{panelBody}' => $panelBody,
                 '{prefix}' => $this->panelPrefix,
