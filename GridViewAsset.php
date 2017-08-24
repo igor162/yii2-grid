@@ -11,7 +11,7 @@ namespace igor162\grid;
 
 class GridViewAsset extends \yii\web\AssetBundle
 {
-    public $sourcePath = '@vendor/almasaeed2010/adminlte/plugins/datatables';
+    public $sourcePath = '@vendor/igor162/AdminLteStyle/plugins/datatables';
     public $css = [
         'dataTables.bootstrap.css',
     ];
