@@ -345,7 +345,7 @@ HTML;
                         'Request submitted! You may safely close this dialog after saving your downloaded file.'
                     ),
                 ],
-                'options' => ['class' => 'btn ' . $this->_defaultBtnCss, 'title' => Yii::t('kvgrid', 'Export')],
+                'options' => ['class' => 'btn ' . $this->_defaultBtnCss . ' btn-sm', 'title' => Yii::t('kvgrid', 'Export')],
                 'menuOptions' => ['class' => 'dropdown-menu dropdown-menu-right '],
             ],
             $this->export
@@ -574,7 +574,7 @@ HTML;
             return;
         }
         $isBs4 = $this->isBs4();
-        $defBtnCss = 'btn ' . $this->_defaultBtnCss;
+        $defBtnCss = 'btn ' . $this->_defaultBtnCss . ' btn-sm';
         $defaultOptions = [
             'maxCount' => 10000,
             'minCount' => 500,
