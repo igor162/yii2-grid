@@ -221,7 +221,7 @@ HTML;
     /**
      * Sets the grid panel layout based on the [[template]] and [[panel]] settings.
      */
-    protected function renderPanel()
+    protected function initPanel()
     {
         if (!$this->bootstrap || !is_array($this->panel) || empty($this->panel)) {
             return;
@@ -328,10 +328,11 @@ HTML;
             $this->export['fontAwesome'] = false;
         }
         $isFa = $this->export['fontAwesome'];
+        $isBs4 = $this->isBs4();
         $this->export = array_replace_recursive(
             [
                 'label' => '',
-                'icon' => $isFa ? 'share-square-o' : 'export',
+                'icon' => $isFa ? 'fa fa-share-square-o' : ($this->isBs4() ? 'fas fa-external-link-alt' : 'glyphicon glyphicon-export'),
                 'messages' => [
                     'allowPopups' => Yii::t(
                         'kvgrid',
@@ -344,7 +345,7 @@ HTML;
                         'Request submitted! You may safely close this dialog after saving your downloaded file.'
                     ),
                 ],
-                'options' => ['class' => 'btn btn-default btn-sm', 'title' => Yii::t('kvgrid', 'Export')],
+                'options' => ['class' => 'btn ' . $this->_defaultBtnCss, 'title' => Yii::t('kvgrid', 'Export')],
                 'menuOptions' => ['class' => 'dropdown-menu dropdown-menu-right '],
             ],
             $this->export
@@ -370,14 +371,14 @@ HTML;
                 'color' => '#333333',
             ],
             'R' => [
-                'content' => Yii::t('kvgrid', 'Generated') . ': ' . date("D, d-M-Y g:i a T"),
+                'content' => Yii::t('kvgrid', 'Generated') . ': ' . date('D, d-M-Y'),
                 'font-size' => 8,
                 'color' => '#333333',
             ],
         ];
         $pdfFooter = [
             'L' => [
-                'content' => Yii::t('kvgrid', "© Krajee Yii2 Extensions"),
+                'content' => Yii::t('kvgrid', '© Krajee Yii2 Extensions'),
                 'font-size' => 8,
                 'font-style' => 'B',
                 'color' => '#999999',
@@ -391,10 +392,42 @@ HTML;
             ],
             'line' => true,
         ];
+        $cssStyles = [
+            '.kv-group-even' => ['background-color' => '#f0f1ff'],
+            '.kv-group-odd' => ['background-color' => '#f9fcff'],
+            '.kv-grouped-row' => ['background-color' => '#fff0f5', 'font-size' => '1.3em', 'padding' => '10px'],
+            '.kv-table-caption' => [
+                'border' => '1px solid #ddd',
+                'border-bottom' => 'none',
+                'font-size' => '1.5em',
+                'padding' => '8px',
+            ],
+            '.kv-table-footer' => ['border-top' => '4px double #ddd', 'font-weight' => 'bold'],
+            '.kv-page-summary td' => [
+                'background-color' => '#ffeeba',
+                'border-top' => '4px double #ddd',
+                'font-weight' => 'bold',
+            ],
+            '.kv-align-center' => ['text-align' => 'center'],
+            '.kv-align-left' => ['text-align' => 'left'],
+            '.kv-align-right' => ['text-align' => 'right'],
+            '.kv-align-top' => ['vertical-align' => 'top'],
+            '.kv-align-bottom' => ['vertical-align' => 'bottom'],
+            '.kv-align-middle' => ['vertical-align' => 'middle'],
+            '.kv-editable-link' => [
+                'color' => '#428bca',
+                'text-decoration' => 'none',
+                'background' => 'none',
+                'border' => 'none',
+                'border-bottom' => '1px dashed',
+                'margin' => '0',
+                'padding' => '2px 1px',
+            ],
+        ];
         $defaultExportConfig = [
             self::HTML => [
                 'label' => Yii::t('kvgrid', 'HTML'),
-                'icon' => $isFa ? 'file-text' : 'floppy-saved',
+                'icon' => $isBs4 ? 'fas fa-file-alt' : ($isFa ? 'fa fa-file-text' : 'glyphicon glyphicon-save'),
                 'iconOptions' => ['class' => 'text-info'],
                 'showHeader' => true,
                 'showPageSummary' => true,
@@ -403,14 +436,20 @@ HTML;
                 'filename' => Yii::t('kvgrid', 'grid-export'),
                 'alertMsg' => Yii::t('kvgrid', 'The HTML export file will be generated for download.'),
                 'options' => ['title' => Yii::t('kvgrid', 'Hyper Text Markup Language')],
-                'mime' => 'text/html',
+                'mime' => 'text/plain',
+                'cssStyles' => $cssStyles,
                 'config' => [
-                    'cssFile' => 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css',
+                    'cssFile' => $this->isBs4() ?
+                        [
+                            'https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css',
+                            'https://use.fontawesome.com/releases/v5.3.1/css/all.css',
+                        ] :
+                        ['https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css'],
                 ],
             ],
             self::CSV => [
                 'label' => Yii::t('kvgrid', 'CSV'),
-                'icon' => $isFa ? 'file-code-o' : 'floppy-open',
+                'icon' => $isBs4 ? 'fas fa-file-code' : ($isFa ? 'fa fa-file-code-o' : 'glyphicon glyphicon-floppy-open'),
                 'iconOptions' => ['class' => 'text-primary'],
                 'showHeader' => true,
                 'showPageSummary' => true,
@@ -421,13 +460,13 @@ HTML;
                 'options' => ['title' => Yii::t('kvgrid', 'Comma Separated Values')],
                 'mime' => 'application/csv',
                 'config' => [
-                    'colDelimiter' => ",",
+                    'colDelimiter' => ',',
                     'rowDelimiter' => "\r\n",
                 ],
             ],
             self::TEXT => [
                 'label' => Yii::t('kvgrid', 'Text'),
-                'icon' => $isFa ? 'file-text-o' : 'floppy-save',
+                'icon' => $isBs4 ? 'far fa-file-alt' : ($isFa ? 'fa fa-file-text-o' : 'glyphicon glyphicon-floppy-save'),
                 'iconOptions' => ['class' => 'text-muted'],
                 'showHeader' => true,
                 'showPageSummary' => true,
@@ -444,7 +483,7 @@ HTML;
             ],
             self::EXCEL => [
                 'label' => Yii::t('kvgrid', 'Excel'),
-                'icon' => $isFa ? 'file-excel-o' : 'floppy-remove',
+                'icon' => $isBs4 ? 'far fa-file-excel' : ($isFa ? 'fa fa-file-excel-o' : 'glyphicon glyphicon-floppy-remove'),
                 'iconOptions' => ['class' => 'text-success'],
                 'showHeader' => true,
                 'showPageSummary' => true,
@@ -454,6 +493,7 @@ HTML;
                 'alertMsg' => Yii::t('kvgrid', 'The EXCEL export file will be generated for download.'),
                 'options' => ['title' => Yii::t('kvgrid', 'Microsoft Excel 95+')],
                 'mime' => 'application/vnd.ms-excel',
+                'cssStyles' => $cssStyles,
                 'config' => [
                     'worksheet' => Yii::t('kvgrid', 'ExportWorksheet'),
                     'cssFile' => '',
@@ -461,7 +501,7 @@ HTML;
             ],
             self::PDF => [
                 'label' => Yii::t('kvgrid', 'PDF'),
-                'icon' => $isFa ? 'file-pdf-o' : 'floppy-disk',
+                'icon' => $isBs4 ? 'far fa-file-pdf' : ($isFa ? 'fa fa-file-pdf-o' : 'glyphicon glyphicon-floppy-disk'),
                 'iconOptions' => ['class' => 'text-danger'],
                 'showHeader' => true,
                 'showPageSummary' => true,
@@ -471,22 +511,14 @@ HTML;
                 'alertMsg' => Yii::t('kvgrid', 'The PDF export file will be generated for download.'),
                 'options' => ['title' => Yii::t('kvgrid', 'Portable Document Format')],
                 'mime' => 'application/pdf',
+                'cssStyles' => $cssStyles,
                 'config' => [
                     'mode' => 'UTF-8',
                     'format' => 'A4-L',
                     'destination' => 'D',
                     'marginTop' => 20,
                     'marginBottom' => 20,
-                    'cssInline' => '.kv-wrap{padding:20px;}' .
-                        '.kv-align-center{text-align:center;}' .
-                        '.kv-align-left{text-align:left;}' .
-                        '.kv-align-right{text-align:right;}' .
-                        '.kv-align-top{vertical-align:top!important;}' .
-                        '.kv-align-bottom{vertical-align:bottom!important;}' .
-                        '.kv-align-middle{vertical-align:middle!important;}' .
-                        '.kv-page-summary{border-top:4px double #ddd;font-weight: bold;}' .
-                        '.kv-table-footer{border-top:4px double #ddd;font-weight: bold;}' .
-                        '.kv-table-caption{font-size:1.5em;padding:8px;border:1px solid #ddd;border-bottom:none;}',
+                    'cssInline' => '.kv-wrap{padding:20px}',
                     'methods' => [
                         'SetHeader' => [
                             ['odd' => $pdfHeader, 'even' => $pdfHeader],
@@ -506,7 +538,7 @@ HTML;
             ],
             self::JSON => [
                 'label' => Yii::t('kvgrid', 'JSON'),
-                'icon' => $isFa ? 'file-code-o' : 'floppy-open',
+                'icon' => $isBs4 ? 'far fa-file-code' : ($isFa ? 'fa fa-file-code-o' : 'glyphicon glyphicon-floppy-open'),
                 'iconOptions' => ['class' => 'text-warning'],
                 'showHeader' => true,
                 'showPageSummary' => true,
@@ -526,7 +558,7 @@ HTML;
         ];
 
         // Remove PDF if dependency is not loaded.
-        if (!class_exists("\\kartik\\mpdf\\Pdf")) {
+        if (!class_exists('\\kartik\\mpdf\\Pdf')) {
             unset($defaultExportConfig[self::PDF]);
         }
 
@@ -541,6 +573,8 @@ HTML;
         if (!$this->toggleData) {
             return;
         }
+        $isBs4 = $this->isBs4();
+        $defBtnCss = 'btn ' . $this->_defaultBtnCss;
         $defaultOptions = [
             'maxCount' => 10000,
             'minCount' => 500,
@@ -550,15 +584,15 @@ HTML;
                 ['totalCount' => number_format($this->dataProvider->getTotalCount())]
             ),
             'all' => [
-                'icon' => 'resize-full',
+                'icon' => $isBs4 ? 'fas fa-expand' : 'glyphicon glyphicon-resize-full',
                 'label' => Yii::t('kvgrid', 'All'),
-                'class' => 'btn btn-default btn-sm',
+                'class' => $defBtnCss,
                 'title' => Yii::t('kvgrid', 'Show all data'),
             ],
             'page' => [
-                'icon' => 'resize-small',
+                'icon' => $isBs4 ? 'fas fa-compress' : 'glyphicon glyphicon-resize-small',
                 'label' => Yii::t('kvgrid', 'Page'),
-                'class' => 'btn btn-default btn-sm',
+                'class' => $defBtnCss,
                 'title' => Yii::t('kvgrid', 'Show first page data'),
             ],
         ];
@@ -569,13 +603,13 @@ HTML;
         $icon = ArrayHelper::remove($this->toggleDataOptions[$tag], 'icon', '');
         $label = !isset($options['label']) ? $defaultOptions[$tag]['label'] : $options['label'];
         if (!empty($icon)) {
-            $label = "<i class='glyphicon glyphicon-{$icon}'></i> " . $label;
+            $label = "<i class='{$icon}'></i> " . $label;
         }
         $this->toggleDataOptions[$tag]['label'] = $label;
         if (!isset($this->toggleDataOptions[$tag]['title'])) {
             $this->toggleDataOptions[$tag]['title'] = $defaultOptions[$tag]['title'];
         }
-        $this->toggleDataOptions[$tag]['data-pjax'] = $this->pjax ? "true" : false;
+        $this->toggleDataOptions[$tag]['data-pjax'] = $this->pjax ? 'true' : false;
     }
 
     /**
